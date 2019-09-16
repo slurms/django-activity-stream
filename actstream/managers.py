@@ -15,7 +15,7 @@ class ActionManager(GFKManager):
 
     def public(self, *args, **kwargs):
         """
-        Only return public actions
+        Return public actions.
         """
         kwargs['public'] = True
         return self.filter(*args, **kwargs)
@@ -96,11 +96,17 @@ class ActionManager(GFKManager):
                 actor_content_type=ContentType.objects.get_for_model(obj),
                 actor_object_id=obj.pk
             )
+        else:
+            qs = qs.exclude(
+                actor_content_type=ContentType.objects.get_for_model(obj),
+                actor_object_id=obj.pk
+            )
 
         follows = apps.get_model('actstream', 'follow').objects.filter(user=obj)
+
         if follow_flag:
             follows = follows.filter(flag=follow_flag)
-            
+
         content_types = ContentType.objects.filter(
             pk__in=follows.values('content_type_id')
         )
